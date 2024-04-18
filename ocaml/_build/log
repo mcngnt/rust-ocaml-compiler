@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/mcngnt/prog2/project/ocaml
 # Auto-detected concurrency: 12
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_ae3624_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_a29c35_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -138,22 +138,3 @@ $ /usr/bin/ocamlc.opt -config > /tmp/dune_ae3624_output
 #      }
 #  ; instrument_with = []
 #  }
-$ (cd _build/default && /usr/bin/ocamldep.opt -modules -impl interp/interp.ml) > _build/default/interp/.run.eobjs/dune__exe__Interp.impl.d
-$ (cd _build/default && /usr/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I interp/.run.eobjs/byte -I interp/.run.eobjs/native -I /home/mcngnt/.opam/default/lib/ppx_deriving/runtime -I /home/mcngnt/.opam/default/lib/result -I parser/.luaparser.objs/byte -I parser/.luaparser.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o interp/.run.eobjs/native/dune__exe__Interp.cmx -c -impl interp/interp.ml)
-> File "interp/interp.ml", line 5, characters 4-16:
-> 5 | let create_scope (names: string list) (values: value list) : (name, value) Hashtbl.t =
->         ^^^^^^^^^^^^
-> Warning 32 [unused-value-declaration]: unused value create_scope.
-> File "interp/interp.ml", line 5, characters 18-23:
-> 5 | let create_scope (names: string list) (values: value list) : (name, value) Hashtbl.t =
->                       ^^^^^
-> Warning 27 [unused-var-strict]: unused variable names.
-> File "interp/interp.ml", line 5, characters 39-45:
-> 5 | let create_scope (names: string list) (values: value list) : (name, value) Hashtbl.t =
->                                            ^^^^^^
-> Warning 27 [unused-var-strict]: unused variable values.
-> File "interp/interp.ml", line 75, characters 16-19:
-> 75 | and interp_exp (env : env) (e : exp) : value =
->                      ^^^
-> Warning 27 [unused-var-strict]: unused variable env.
-$ (cd _build/default && /usr/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -o interp/run.exe /home/mcngnt/.opam/default/lib/result/result.cmxa /home/mcngnt/.opam/default/lib/ppx_deriving/runtime/ppx_deriving_runtime.cmxa parser/luaparser.cmxa interp/.run.eobjs/native/dune__exe.cmx interp/.run.eobjs/native/dune__exe__Value.cmx interp/.run.eobjs/native/dune__exe__Interp.cmx interp/.run.eobjs/native/dune__exe__Run.cmx)

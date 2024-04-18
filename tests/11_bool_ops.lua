@@ -1,7 +1,11 @@
 print(false and false)
+print(1)
 print(false and true)
+print(2)
 print(true and false)
+print(3)
 print(true and true)
+print(4)
 print(nil and false)
 print(false and nil)
 print(1 and nil)
@@ -50,6 +54,8 @@ x = 1
 function f () x = x+1; return true end
 print(x, f(), x)
 print(x, 1 and f(), x)
+
+
 print(x, 1 or f(), x)
 print(x, nil and f(), x)
 print(x, false or f(), x)
