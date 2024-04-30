@@ -3,36 +3,17 @@ type value = Value.t
 type env = Value.env
 
 let create_scope (names: string list) (values: value list) : (name, value) Hashtbl.t =
-  assert false
+  let ht = Hashtbl.create (List.length names) in
+  List.iter2 (fun n v -> Hashtbl.add ht n v) names values;
+  ht
 
-
-(* type block = {
-  locals: name list;
-  body: stat;
-  ret: exp
-} *)
 
 let rec interp_block (env : env) (blk : block) : value =
-  let hloc = Hashtbl.create (List.length blk.locals) in
-  List.iter (fun n -> Hashtbl.add hloc n Value.Nil) blk.locals;
-  let nenv = Value.{ globals = env.globals; locals = hloc::env.locals } in
+  let new_scope = create_scope blk.locals (List.map (fun x -> Value.Nil) blk.locals) in
+  let nenv = Value.{ globals = env.globals; locals = new_scope::env.locals } in
   interp_stat nenv (blk.body);
   interp_exp nenv (blk.ret)
 
-(*   (* le statement vide qui ne fait rien *)
-  | Nop
-  (* séquence de deux statements *)
-  | Seq              of stat * stat
-  (* Assignation: "x = e" ou "e[e] = e" *)
-  | Assign           of var * exp
-  (* Appel de fonction: "e(e, ..., e)" *)
-  | FunctionCall     of functioncall
-  (* Boucle while: "while e do ... end" *)
-  | WhileDoEnd       of exp * stat
-  (* If-then-else: "if e then ... else ... end" *)
-  | If               of exp * stat * stat
-
-   *) 
 
 and interp_stat (env : env) (stat : stat) : unit =
   match stat with
@@ -44,9 +25,7 @@ and interp_stat (env : env) (stat : stat) : unit =
                          | Name n -> Value.set_ident env n (interp_exp env e)
                          | IndexTable(e1, e2) -> let t = Value.as_table (interp_exp env e1) in
                                                  let k = Value.as_table_key (interp_exp env e2) in
-                                                  try
-                                                    Hashtbl.replace t k (interp_exp env e)
-                                                  with Not_found -> ()
+                                                 Hashtbl.replace t k (interp_exp env e)
                      end
     | If(e,s1,s2) -> let ve = interp_exp env e in
                   if (Value.as_bool ve) then
@@ -58,7 +37,6 @@ and interp_stat (env : env) (stat : stat) : unit =
                           interp_stat env s;
                           interp_stat env (WhileDoEnd(e,s))
                         end
-    | _ -> ()
 
 
 and print_args (vargs : value list) : unit =
@@ -67,15 +45,6 @@ and print_args (vargs : value list) : unit =
     | [a] -> print_string (Value.to_string a); print_args []
     | h::t -> print_string ( (Value.to_string h) ^ "\t" ); print_args t
 
-
-
-(* functioncall = exp * args *)
-(* and args = exp list *)
-
-(* and func =
-  (* fermeture: noms des arguments, environnement et code *)
-  | Closure of name list * env * block
-  | Print (* la fonction primitive 'print' *) *)
 
 and interp_funcall (env : env) (fc : functioncall) : value =
   let ve = interp_exp env (fst fc) in
@@ -93,56 +62,7 @@ and interp_funcall (env : env) (fc : functioncall) : value =
                         aux nl vargs;
                         interp_block menv b
                     end
-    | _ -> failwith "Object not callable."
-
-
-(* type t =
-  | Nil
-  | Bool of bool
-  | Int of Int64.t
-  | Float of float
-  | String of string
-  | Function of func
-  | Table of (tkey, t) Hashtbl.t
- *)
-(* and exp =
-  | Nil
-  | False
-  | True
-  | Integer        of Int64.t
-  | Float          of float
-  | LiteralString  of string (* chaîne de caractères: de la forme "abc" *)
-  | Var            of var (* nom de variable *)
-  | FunctionCallE  of functioncall (* appel de fonction "e(e, ..., e)" *)
-  | FunctionDef    of funcbody (* fonction anonyme: function (x, y, ...) ... end *)
-  | BinOp          of binop * exp * exp (* e op e *)
-  | UnOp           of unop * exp (* - e *)
-  | Table          of (exp * exp) list *)
-
-
-(* and funcbody = name list * block *)
-
-(* and var =
-  | Name       of name (* nom de variable *)
-  | IndexTable of exp * exp (* index dans une table: e[e] *) *)
-
-(* 
-
-and binop =
-  (* arithmetic operators *)
-  | Addition (* + *)
-  | Subtraction (* - *)
-  | Multiplication (* * *)
-  (* relational operators *)
-  | Equality (* == *)
-  | Inequality (* ~= *)
-  | Less (* < *)
-  | Greater (* > *)
-  | LessEq (* <= *)
-  | GreaterEq (* >= *)
-  (* logical operators *)
-  | LogicalAnd (* and *)
-  | LogicalOr (* or *) *)
+    | _ -> failwith "Object is not callable."
 
 
 and interp_exp (env : env) (e : exp) : value =
@@ -195,18 +115,15 @@ and interp_exp (env : env) (e : exp) : value =
     | Float f -> Float f
     | LiteralString s -> String s
     | FunctionCallE fc -> interp_funcall env fc
-    | FunctionDef fb -> Value.Function ( Closure(fst fb, env, snd fb)  )
+    | FunctionDef fb -> let new_scope = create_scope (fst fb) (List.map (fun x -> Value.Nil) (fst fb)) in
+                        let nenv = Value.{ globals = env.globals; locals = new_scope::env.locals } in
+                        Value.Function ( Closure(fst fb, nenv, snd fb)  )
     | Table l -> let ht = Hashtbl.create (List.length l) in
                  List.iter (fun (e1, e2) -> let ve1 = interp_exp env e1 in
                                             let ve2 = interp_exp env e2 in
-                                            let key = match ve1 with
-                                              | Int i -> Value.KInt i
-                                              | String s -> Value.KString s
-                                              | _ -> failwith "Wrong key type in table"
-                                            in
+                                            let key = Value.as_table_key ve1 in
                                             Hashtbl.add ht key ve2 ) l;
                  Table ht
-    | _ -> Nil
 
 let run ast =
   let globals = Hashtbl.create 47 in

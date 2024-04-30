@@ -12,10 +12,10 @@ function incra(u)
 end
 
 incra(t)
-print(t.a, t.b)
-incra(t)
-print(t.a, t.b)
-print(t2.a, t2.b)
+-- print(t.a, t.b)
+-- incra(t)
+-- print(t.a, t.b)
+-- print(t2.a, t2.b)
 
-t2.b = 42
-print(t.a, t.b)
+-- t2.b = 42
+-- print(t.a, t.b)
