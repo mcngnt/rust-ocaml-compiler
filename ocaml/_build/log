@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/mcngnt/prog2/project/ocaml
 # Auto-detected concurrency: 12
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_307c25_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_1e5a81_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -138,3 +138,48 @@ $ /usr/bin/ocamlc.opt -config > /tmp/dune_307c25_output
 #      }
 #  ; instrument_with = []
 #  }
+$ (cd _build/default && /usr/bin/ocamldep.opt -modules -impl interp-cps/interp.ml) > _build/default/interp-cps/.run.eobjs/dune__exe__Interp.impl.d
+$ (cd _build/default && /usr/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -I interp-cps/.run.eobjs/byte -I interp-cps/.run.eobjs/native -I /home/mcngnt/.opam/default/lib/ppx_deriving/runtime -I /home/mcngnt/.opam/default/lib/result -I parser/.luaparser.objs/byte -I parser/.luaparser.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Dune__exe -o interp-cps/.run.eobjs/native/dune__exe__Interp.cmx -c -impl interp-cps/interp.ml)
+> File "interp-cps/interp.ml", lines 119-130, characters 44-46:
+> 119 | ............................................(begin
+> 120 |                                             match o with
+> 121 |                                               | Equality -> Bool (Value.equal ve1 ve2)
+> 122 |                                               | Addition -> Value.add ve1 ve2
+> 123 |                                               | Subtraction -> Value.sub ve1 ve2
+> ...
+> 127 |                                               | LessEq -> Bool (Value.le ve1 ve2)
+> 128 |                                               | Greater -> Bool (Value.lt ve2 ve1)
+> 129 |                                               | GreaterEq -> Bool (Value.le ve2 ve1)
+> 130 |                                           end)
+> Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+> Here is an example of a case that is not matched:
+> (LogicalAnd|LogicalOr)
+> File "interp-cps/interp.ml", line 3, characters 0-32:
+> 3 | type coroutine = Value.coroutine
+>     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> Warning 34 [unused-type-declaration]: unused type coroutine.
+> File "interp-cps/interp.ml", line 12, characters 57-58:
+> 12 |   let new_scope = create_scope blk.locals (List.map (fun x -> Value.Nil) blk.locals) in
+>                                                               ^
+> Warning 27 [unused-var-strict]: unused variable x.
+> File "interp-cps/interp.ml", line 14, characters 35-36:
+> 14 |   interp_stat nenv (blk.body) (fun v -> interp_exp nenv (blk.ret) k co) co
+>                                         ^
+> Warning 27 [unused-var-strict]: unused variable v.
+> File "interp-cps/interp.ml", line 20, characters 52-53:
+> 20 |     | FunctionCall fc -> interp_funcall env fc (fun v -> k ()) co
+>                                                          ^
+> Warning 27 [unused-var-strict]: unused variable v.
+> File "interp-cps/interp.ml", line 134, characters 77-78:
+> 134 |     | FunctionDef fb -> let new_scope = create_scope (fst fb) (List.map (fun x -> Value.Nil) (fst fb)) in
+>                                                                                    ^
+> Warning 27 [unused-var-strict]: unused variable x.
+> File "interp-cps/interp.ml", line 165, characters 36-37:
+> 165 |   ignore (interp_block env ast (fun x -> ()) (fun v -> ()))
+>                                           ^
+> Warning 27 [unused-var-strict]: unused variable x.
+> File "interp-cps/interp.ml", line 165, characters 50-51:
+> 165 |   ignore (interp_block env ast (fun x -> ()) (fun v -> ()))
+>                                                         ^
+> Warning 27 [unused-var-strict]: unused variable v.
+$ (cd _build/default && /usr/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62-40 -strict-sequence -strict-formats -short-paths -keep-locs -warn-error -A -g -o interp-cps/run.exe /home/mcngnt/.opam/default/lib/result/result.cmxa /home/mcngnt/.opam/default/lib/ppx_deriving/runtime/ppx_deriving_runtime.cmxa parser/luaparser.cmxa interp-cps/.run.eobjs/native/dune__exe.cmx interp-cps/.run.eobjs/native/dune__exe__Value.cmx interp-cps/.run.eobjs/native/dune__exe__Interp.cmx interp-cps/.run.eobjs/native/dune__exe__Run.cmx)

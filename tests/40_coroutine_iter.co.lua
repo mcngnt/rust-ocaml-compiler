@@ -7,7 +7,7 @@ function f ()
   end
 end
 
-co = coroutine.create (f)
+co = coroutine.create(f)
 
 coroutine.mini_resume(co)
 coroutine.mini_resume(co)
