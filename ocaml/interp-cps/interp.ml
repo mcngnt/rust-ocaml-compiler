@@ -24,7 +24,7 @@ and interp_stat (env : env) (stat : stat) (k : unit -> unit) (co : coroutine) : 
     | FunctionCall fc -> interp_funcall env fc (fun v -> k ()) co
     | Assign(v,e) -> begin
                        match v with
-                         | Name n -> interp_exp env e (fun v -> Value.set_ident env n v) co; k ()
+                         | Name n -> interp_exp env e (fun v -> k (Value.set_ident env n v)) co
                          | IndexTable(e1, e2) -> interp_exp env e1 (fun ve1 ->
                                                   interp_exp env e2 (fun ve2 ->
                                                     interp_exp env e (fun ve ->
@@ -81,16 +81,16 @@ and interp_funcall (env : env) (fc : functioncall) (k: value -> unit) (co : coro
                                  begin match cc.stat with
                                   | Suspended k1 -> cc.stat <- Running k;
                                                     begin match vargs with
-                                                      | h::t -> k1 h
-                                                      | [] -> k1 Value.Nil
+                                                      | _::h::t -> k1 h
+                                                      | _ -> k1 Value.Nil
                                                     end
                                   | _ -> failwith "Can't resume coroutine"
                                  end
         | Value.CoroutYield -> begin match co.stat with
                                     | Running k1 -> co.stat <- Suspended k;
                                                     begin match vargs with
-                                                      | [] -> k1 Value.Nil
                                                       | h::t -> k1 h
+                                                      | [] -> k1 Value.Nil
                                                     end
                                     | _ -> failwith "Can't yield : coroutine is not running"
                                   end

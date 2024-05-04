@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /home/mcngnt/prog2/project/ocaml
 # Auto-detected concurrency: 12
-$ /usr/bin/ocamlc.opt -config > /tmp/dune_836d1c_output
+$ /usr/bin/ocamlc.opt -config > /tmp/dune_6cd434_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"

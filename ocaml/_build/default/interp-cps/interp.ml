@@ -24,7 +24,7 @@ and interp_stat (env : env) (stat : stat) (k : unit -> unit) (co : coroutine) : 
     | FunctionCall fc -> interp_funcall env fc (fun v -> k ()) co
     | Assign(v,e) -> begin
                        match v with
-                         | Name n -> interp_exp env e (fun v -> Value.set_ident env n v) co; k ()
+                         | Name n -> interp_exp env e (fun v -> k (Value.set_ident env n v)) co
                          | IndexTable(e1, e2) -> interp_exp env e1 (fun ve1 ->
                                                   interp_exp env e2 (fun ve2 ->
                                                     interp_exp env e (fun ve ->
@@ -81,16 +81,16 @@ and interp_funcall (env : env) (fc : functioncall) (k: value -> unit) (co : coro
                                  begin match cc.stat with
                                   | Suspended k1 -> cc.stat <- Running k;
                                                     begin match vargs with
-                                                      | h::t -> k1 h
-                                                      | [] -> k1 Value.Nil
+                                                      | _::h::t -> k1 h
+                                                      | _ -> k1 Value.Nil
                                                     end
                                   | _ -> failwith "Can't resume coroutine"
                                  end
         | Value.CoroutYield -> begin match co.stat with
                                     | Running k1 -> co.stat <- Suspended k;
                                                     begin match vargs with
-                                                      | [] -> k1 Value.Nil
                                                       | h::t -> k1 h
+                                                      | [] -> k1 Value.Nil
                                                     end
                                     | _ -> failwith "Can't yield : coroutine is not running"
                                   end
@@ -103,6 +103,37 @@ and interp_funcall (env : env) (fc : functioncall) (k: value -> unit) (co : coro
       in
       runfun (Value.as_function ve) vargs k co
     )) co
+
+
+
+(*  and interp_funcall (env : env) (fc : functioncall) (k: value -> unit) (cc : coroutine) : unit =
+        interp_exp env (fst fc) (fun expr ->
+                let rec aux l args k = match l with
+                | [] -> k (List.rev args)
+                | a :: q -> interp_exp env a (fun v -> aux q (v :: args) k) cc
+                in aux (snd fc) [] @@ fun args -> 
+                        let rec execfun env func args cc (k: value -> unit) =
+                                match func with
+                                | Value.Print -> print_endline (String.concat "\t" (List.map Value.to_string args)); k Nil
+                                | Value.Closure (names, env, blk) -> let newenv = Value.{globals = env.globals; locals = create_scope names args :: env.locals} in interp_block newenv blk k cc
+                                | Value.CoroutCreate -> let rec co = Value.{stat = Suspended (fun arg -> execfun env (Value.as_function (List.hd args)) [arg] co
+                                                        (fun v -> match co.stat with Running k -> co.stat <- Dead; k v | _ -> failwith "current coroutine is not running ?????")) } in
+                                                        k (Value.Coroutine co)
+                                | Value.CoroutResume -> let co = (Value.as_coroutine (List.hd args)) in begin match co.stat with 
+                                                                | Suspended ck -> co.stat <- Running k; (match args with _ :: arg :: q -> ck arg | _ -> ck Nil)
+                                                                | _ -> failwith "cannot resume that coroutine" end
+                                | Value.CoroutYield -> begin match cc.stat, args with
+                                                        | Running ok, arg :: q -> cc.stat <- Suspended k; ok arg
+                                                        | Running ok, [] -> cc.stat <- Suspended k; ok Nil
+                                                        | _ -> failwith "current coroutine is not running ?????"
+                                                        end
+                                | Value.CoroutStatus -> begin match (Value.as_coroutine (List.hd args)).stat with 
+                                                                | Suspended _ -> k (String "suspended")
+                                                                | Running _ -> k (String "running")
+                                                                | Dead -> k (String "dead") end
+
+                        in execfun env (Value.as_function expr) args cc k
+      ) cc *)
 
 
 and interp_exp (env : env) (e : exp) (k: value -> unit) (co : coroutine) : unit =
